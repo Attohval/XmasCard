@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Christmas Greeting Card 🎄</title>
+
+<!-- Google Font -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:'Poppins',sans-serif;
+}
+
+body{
+  background:#00111b;
+  color:white;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+}
+
+.container{
+  width:90%;
+  max-width:900px;
+}
+
+.title{
+  text-align:center;
+  margin-bottom:15px;
+  font-size:28px;
+}
+
+.form-box{
+  background:#06273a;
+  padding:20px;
+  border-radius:10px;
+  box-shadow:0 0 15px rgba(255,255,255,0.2);
+  margin-bottom:20px;
+}
+
+.form-box input,
+.form-box textarea,
+.form-box select{
+  width:100%;
+  padding:10px;
+  margin:8px 0;
+  border:none;
+  border-radius:5px;
+  outline:none;
+}
+
+button{
+  width:100%;
+  background:#ff1d1d;
+  border:none;
+  padding:10px;
+  color:white;
+  font-size:16px;
+  border-radius:5px;
+  cursor:pointer;
+  margin-top:10px;
+}
+
+button:hover{
+  background:#ff6b6b;
+}
+
+.card{
+  min-height:300px;
+  padding:20px;
+  border-radius:15px;
+  text-align:center;
+  display:none;
+  position:relative;
+  overflow:hidden;
+}
+
+/* THEMES */
+.snow{
+  background:linear-gradient(to bottom,#003049,#1d3557);
+}
+
+.lights{
+  background:linear-gradient(to bottom,#8d0801,#c1121f);
+}
+
+.santa{
+  background:linear-gradient(to bottom,#175d1f,#4caf50);
+}
+
+.card h2{
+  margin-bottom:10px;
+}
+.card h3{
+  margin-top:20px;
+}
+
+/* Snow Effect */
+.snowflake {
+  position: fixed;
+  top: -10px;
+  color: white;
+  font-size: 1.5rem;
+  animation: fall linear infinite;
+}
+
+@keyframes fall {
+  to {
+    transform: translateY(100vh);
+  }
+}
+</style>
+</head>
+
+<body>
+
+<audio id="music" loop>
+  <source src="https://cdn.pixabay.com/download/audio/2022/12/20/audio_2a3bb9e2c9.mp3" type="audio/mpeg">
+</audio>
+
+<div class="container">
+
+  <h1 class="title">🎄 Christmas Greeting Card Maker 🎁</h1>
+
+  <div class="form-box">
+    <input id="sender" type="text" placeholder="Your Name">
+    <input id="receiver" type="text" placeholder="Recipient Name">
+
+    <textarea id="message" placeholder="Write your Christmas message..."></textarea>
+
+    <label>Select Theme:</label>
+    <select id="theme">
+      <option value="snow">Snow Theme</option>
+      <option value="lights">Christmas Lights</option>
+      <option value="santa">Santa Theme</option>
+    </select>
+
+    <button onclick="generateCard()">Generate Card</button>
+    <button onclick="toggleMusic()">Play / Pause Music 🎶</button>
+  </div>
+
+  <div class="card" id="card">
+    <h2 id="toText"></h2>
+    <p id="msgText"></p>
+    <h3 id="fromText"></h3>
+  </div>
+
+  <button id="downloadBtn" style="display:none" onclick="downloadCard()">Download Card 📸</button>
+  <button id="shareBtn" style="display:none" onclick="shareCard()">Share Card 📤</button>
+
+</div>
+
+<!-- html2canvas for screenshot -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<script>
+function generateCard() {
+  const sender = document.getElementById("sender").value;
+  const receiver = document.getElementById("receiver").value;
+  const message = document.getElementById("message").value;
+  const theme = document.getElementById("theme").value;
+  const card = document.getElementById("card");
+
+  if(!sender || !receiver || !message){
+    alert("Please fill all fields 😊");
+    return;
+  }
+
+  document.getElementById("toText").innerText = `To: ${receiver}`;
+  document.getElementById("msgText").innerText = message;
+  document.getElementById("fromText").innerText = `From: ${sender}`;
+
+  card.className = "card";
+  card.classList.add(theme);
+  card.style.display = "block";
+
+  document.getElementById("downloadBtn").style.display = "block";
+  document.getElementById("shareBtn").style.display = "block";
+
+  startSnow();
+}
+
+/* MUSIC */
+function toggleMusic(){
+  const music = document.getElementById("music");
+  if(music.paused){
+    music.play();
+  } else {
+    music.pause();
+  }
+}
+
+/* SNOW EFFECT */
+function startSnow(){
+  setInterval(() => {
+    const snow = document.createElement("div");
+    snow.className = "snowflake";
+    snow.innerText = "❄";
+    snow.style.left = Math.random() * window.innerWidth + "px";
+    snow.style.animationDuration = Math.random() * 3 + 2 + "s";
+    snow.style.opacity = Math.random();
+    document.body.appendChild(snow);
+
+    setTimeout(() => snow.remove(), 5000);
+  }, 200);
+}
+
+/* DOWNLOAD CARD */
+function downloadCard(){
+  const card = document.getElementById("card");
+  html2canvas(card).then(canvas => {
+    const link = document.createElement("a");
+    link.download = "ChristmasCard.png";
+    link.href = canvas.toDataURL();
+    link.click();
+  });
+}
+
+/* SHARE CARD */
+async function shareCard(){
+  const card = document.getElementById("card");
+  const canvas = await html2canvas(card);
+  canvas.toBlob(async blob => {
+    const file = new File([blob], "ChristmasCard.png", {type:"image/png"});
+    if(navigator.share){
+      await navigator.share({
+        files:[file],
+        title:"Christmas Greeting Card",
+        text:"Here is a special Christmas card 🎄"
+      });
+    } else {
+      alert("Sharing not supported on this device. Download instead 😊");
+    }
+  });
+}
+</script>
+
+</body>
+</html>
